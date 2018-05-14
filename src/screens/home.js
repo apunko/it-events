@@ -1,6 +1,16 @@
 import React from 'react';
 import { View, FlatList, Button, StyleSheet } from 'react-native';
+import PropTypes from 'prop-types';
 import { DATA_SERVER } from '../constants';
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+});
 
 class HomeScreen extends React.Component {
   static navigationOptions = {
@@ -11,21 +21,19 @@ class HomeScreen extends React.Component {
     super();
     this.state = {
       events: [],
-    }
+    };
   }
 
   componentDidMount() {
-    fetch(`${DATA_SERVER}/events`).then(response => {
-      return response.json()
-    }).then(data => {
-      const events = data.map(event => {
-        return {
+    fetch(`${DATA_SERVER}/events`)
+      .then(response => response.json())
+      .then(data => {
+        const events = data.map(event => ({
           title: event.title,
           id: event._id,
-        }
+        }));
+        this.setState({ events });
       });
-      this.setState({events})
-    })
   }
 
   render() {
@@ -33,28 +41,23 @@ class HomeScreen extends React.Component {
       <View style={styles.container}>
         <FlatList
           data={this.state.events}
-          renderItem={({item}) => {
-            return (
-              <Button
-                key={item.id}
-                title={item.title}
-                onPress={() => this.props.navigation.navigate('Event', { event: item })}
-              />
-            )}
-          }
+          renderItem={({ item }) => (
+            <Button
+              key={item.id}
+              title={item.title}
+              onPress={() => this.props.navigation.navigate('Event', { event: item })}
+            />
+          )}
         />
       </View>
     );
   }
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+HomeScreen.propTypes = {
+  navigation: PropTypes.shape({
+    navigate: PropTypes.func.isRequired,
+  }).isRequired,
+};
 
 export default HomeScreen;

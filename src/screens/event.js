@@ -1,6 +1,7 @@
-import React from "react";
+import React from 'react';
 import { Text, View } from 'react-native';
-import storage from '../libs/storage'
+import PropTypes from 'prop-types';
+import storage from '../libs/storage';
 
 class EventScreen extends React.Component {
   static navigationOptions = ({ navigation }) => {
@@ -8,7 +9,7 @@ class EventScreen extends React.Component {
 
     return {
       title: params ? params.event.title : 'Event',
-    }
+    };
   };
 
   constructor(props) {
@@ -24,11 +25,14 @@ class EventScreen extends React.Component {
   componentDidMount() {
     const { params } = this.props.navigation.state;
     const propsEvent = params ? params.event : {};
-    storage.load({ key: 'event', id: propsEvent.id }).then(event => {
-      this.setState({event})
-    }).catch(error => {
-      console.warn(error)
-    })
+    storage
+      .load({ key: 'event', id: propsEvent.id })
+      .then(event => {
+        this.setState({ event });
+      })
+      .catch(error => {
+        console.warn(error);
+      });
   }
 
   render() {
@@ -41,5 +45,14 @@ class EventScreen extends React.Component {
     );
   }
 }
+
+EventScreen.propTypes = {
+  navigation: PropTypes.shape({
+    state: PropTypes.shape({
+      params: PropTypes.object,
+    }),
+    navigate: PropTypes.func.isRequired,
+  }).isRequired,
+};
 
 export default EventScreen;
