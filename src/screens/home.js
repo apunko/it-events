@@ -21,18 +21,17 @@ class HomeScreen extends React.Component {
     super();
     this.state = {
       events: [],
-      page: 1,
-      moreEventsExist: true,
+      nextPage: 1,
     };
   }
 
   componentDidMount() {
-    this.fetchEventsPage(this.state.page);
+    this.fetchEventsPage(this.state.nextPage);
   }
 
   onEndReached = () => {
-    if (this.state.moreEventsExist) {
-      this.fetchEventsPage(this.state.page + 1);
+    if (this.state.nextPage !== null) {
+      this.fetchEventsPage(this.state.nextPage);
     }
   };
 
@@ -47,8 +46,7 @@ class HomeScreen extends React.Component {
 
         this.setState({
           events: this.state.events.concat(events),
-          page,
-          moreEventsExist: events.length === PAGE_SIZE,
+          nextPage: events.length === PAGE_SIZE ? page + 1 : null,
         });
       });
   };
