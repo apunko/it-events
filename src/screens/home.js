@@ -22,6 +22,7 @@ class HomeScreen extends React.Component {
     this.state = {
       events: [],
       nextPage: 1,
+      loading: false,
     };
   }
 
@@ -36,6 +37,9 @@ class HomeScreen extends React.Component {
   };
 
   fetchEventsPage = page => {
+    if (this.state.loading) return;
+
+    this.setState({ loading: true });
     fetch(`${DATA_SERVER}/events?page=${page}`)
       .then(response => response.json())
       .then(data => {
@@ -47,6 +51,7 @@ class HomeScreen extends React.Component {
         this.setState({
           events: this.state.events.concat(events),
           nextPage: events.length === PAGE_SIZE ? page + 1 : null,
+          loading: false,
         });
       });
   };
@@ -56,16 +61,17 @@ class HomeScreen extends React.Component {
       <View style={styles.container}>
         <FlatList
           data={this.state.events}
+          onEndReachedThreshold={0.5}
           onEndReached={this.onEndReached}
           renderItem={({ item }) => (
             <Button
-              key={item.id}
+              key={item._id}
               title={item.title}
               onPress={() => this.props.navigation.navigate('Event', { event: item })}
             />
           )}
         />
-        <Text>All events were loaded</Text>
+        {this.state.nextPage === null && <Text>All events were loaded</Text>}
       </View>
     );
   }
