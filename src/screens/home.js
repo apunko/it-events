@@ -23,6 +23,7 @@ class HomeScreen extends React.Component {
       events: [],
       nextPage: 1,
       loading: false,
+      refreshing: false,
     };
   }
 
@@ -36,7 +37,12 @@ class HomeScreen extends React.Component {
     }
   };
 
-  fetchEventsPage = page => {
+  onRefresh = () => {
+    this.setState({ refreshing: true });
+    this.fetchEventsPage(1, true);
+  };
+
+  fetchEventsPage = (page, refreshing = false) => {
     if (this.state.loading) return;
 
     this.setState({ loading: true });
@@ -49,9 +55,10 @@ class HomeScreen extends React.Component {
         }));
 
         this.setState({
-          events: this.state.events.concat(events),
+          events: refreshing ? events : this.state.events.concat(events),
           nextPage: events.length === PAGE_SIZE ? page + 1 : null,
           loading: false,
+          refreshing: false,
         });
       });
   };
@@ -63,9 +70,11 @@ class HomeScreen extends React.Component {
           data={this.state.events}
           onEndReachedThreshold={0.5}
           onEndReached={this.onEndReached}
+          onRefresh={this.onRefresh}
+          refreshing={this.state.refreshing}
           renderItem={({ item }) => (
             <Button
-              key={item._id}
+              key={item.id}
               title={item.title}
               onPress={() => this.props.navigation.navigate('Event', { event: item })}
             />
