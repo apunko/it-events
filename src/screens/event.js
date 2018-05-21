@@ -1,7 +1,8 @@
 import React from 'react';
-import { Text, View } from 'react-native';
+import { Text, View, Button, Alert } from 'react-native';
 import PropTypes from 'prop-types';
 import storage from '../libs/storage';
+import PermissionsService from '../services/permissions';
 
 class EventScreen extends React.Component {
   static navigationOptions = ({ navigation }) => {
@@ -35,12 +36,23 @@ class EventScreen extends React.Component {
       });
   }
 
+  addToCalendar = () => {
+    PermissionsService.getCalendarPermissions().then(accessStatus => {
+      if (accessStatus === 'granted') {
+        Alert.alert('Event was added!');
+      } else {
+        Alert.alert('Sorry, no permissions!');
+      }
+    });
+  };
+
   render() {
     return (
       <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
         <Text>{this.state.event.title}</Text>
         <Text>{this.state.event.address}</Text>
         <Text>{this.state.event.link}</Text>
+        <Button title="Add to calendar" onPress={this.addToCalendar} />
       </View>
     );
   }
