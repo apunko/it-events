@@ -2,7 +2,8 @@ import React from 'react';
 import { Text, View, Button, Alert } from 'react-native';
 import PropTypes from 'prop-types';
 import storage from '../libs/storage';
-import PermissionsService from '../services/permissions';
+import PermissionsService from '../services/permissionsService';
+import CalendarService from '../services/calendarService';
 
 class EventScreen extends React.Component {
   static navigationOptions = ({ navigation }) => {
@@ -29,7 +30,15 @@ class EventScreen extends React.Component {
     storage
       .load({ key: 'event', id: propsEvent.id })
       .then(event => {
-        this.setState({ event });
+        this.setState({
+          event: {
+            title: event.title,
+            address: event.address,
+            link: event.link,
+            startDate: event.start_date,
+            finishDate: event.finish_date,
+          },
+        });
       })
       .catch(error => {
         console.warn(error);
@@ -37,9 +46,9 @@ class EventScreen extends React.Component {
   }
 
   addToCalendar = () => {
-    PermissionsService.getCalendarPermissions().then(accessStatus => {
+    PermissionsService.getCalendarPermissions().then(async accessStatus => {
       if (accessStatus === 'granted') {
-        Alert.alert('Event was added!');
+        await CalendarService.addEvent(this.state.event);
       } else {
         Alert.alert('Sorry, no permissions!');
       }
@@ -52,6 +61,8 @@ class EventScreen extends React.Component {
         <Text>{this.state.event.title}</Text>
         <Text>{this.state.event.address}</Text>
         <Text>{this.state.event.link}</Text>
+        <Text>{this.state.event.startDate}</Text>
+        <Text>{this.state.event.finishDate}</Text>
         <Button title="Add to calendar" onPress={this.addToCalendar} />
       </View>
     );
